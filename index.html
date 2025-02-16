@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>82창 특수제작공장 MSDS 정보 시스템</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            line-height: 1.6;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            text-align: center;
+        }
+
+        .search-section {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex: 1;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        .msds-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .msds-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .msds-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 4px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .msds-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .msds-item h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+            font-size: 1.1em;
+        }
+
+        .empty-content {
+            color: #999;
+            font-style: italic;
+        }
+
+        .content-filled {
+            color: #333;
+            white-space: pre-line;
+        }
+
+        .content-empty {
+            color: #999;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .msds-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 1.2em;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>82창 특수제작공장 MSDS 정보 시스템</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="search-section">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="재고번호 입력...">
+                <button onclick="searchMSDS()">검색</button>
+            </div>
+        </section>
+
+        <section class="msds-content">
+            <div class="msds-grid" id="msdsGrid">
+                <!-- MSDS 항목들이 여기에 동적으로 추가됩니다 -->
+            </div>
+        </section>
+    </div>
+
+    <div class="footer">
+        82창
+    </div>
+
+    <script>
+        let msdsData = null;
+        const msdsItems = [
+            "화학제품과 회사에 관한 정보",
+            "유해성·위험성",
+            "구성성분의 명칭 및 함유량",
+            "응급조치요령",
+            "폭발·화재시 대처방법",
+            "누출사고시 대처방법",
+            "취급 및 저장방법",
+            "노출방지 및 개인보호구",
+            "물리화학적 특성",
+            "안정성 및 반응성",
+            "독성에 관한 정보",
+            "환경에 미치는 영향",
+            "폐기시 주의사항",
+            "운송에 필요한 정보",
+            "법적 규제현황",
+            "그 밖의 참고사항"
+        ];
+
+        // 페이지 로드 시 Excel 파일 자동 로드 및 기본 구조 생성
+        window.onload = async function() {
+            createEmptyStructure();
+            await loadExcelFile();
+        }
+
+        // 빈 MSDS 구조 생성
+        function createEmptyStructure() {
+            const grid = document.getElementById('msdsGrid');
+            grid.innerHTML = '';
+            
+            msdsItems.forEach((title, index) => {
+                const div = document.createElement('div');
+                div.className = 'msds-item';
+                div.innerHTML = `
+                    <h3>${index + 1}. ${title}</h3>
+                    <p class="empty-content">데이터를 검색하세요</p>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        // Excel 파일 자동 로드
+        async function loadExcelFile() {
+            try {
+                const response = await fetch('main.xlsx');
+                const arrayBuffer = await response.arrayBuffer();
+                const data = new Uint8Array(arrayBuffer);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                msdsData = XLSX.utils.sheet_to_json(firstSheet, {defval: ''});
+                console.log('MSDS Data:', msdsData);
+            } catch (error) {
+                console.error('Excel 파일 로드 실패:', error);
+                alert('데이터 파일을 불러오는데 실패했습니다.');
+            }
+        }
+
+        // MSDS 검색 및 표시
+        function searchMSDS() {
+            if (!msdsData) {
+                alert('데이터를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+                return;
+            }
+
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            console.log('Searching for:', searchTerm);
+            const filteredData = msdsData.filter(item => 
+                item.재고번호?.toString().trim() === searchTerm
+            );
+
+            console.log('Filtered Data:', filteredData);
+
+            // 필터링된 데이터가 존재하는지 확인
+            if (filteredData.length > 0) {
+                const data = filteredData[0]; // 첫 번째 필터링된 데이터 가져오기
+                document.querySelectorAll('.msds-item').forEach((item, index) => {
+                    const title = msdsItems[index]; // 제목 가져오기
+                    const content = item.querySelector('p'); // 내용 요소 선택
+                    content.textContent = data[title] || '얼레리 꼴레리'; // 데이터가 없으면 기본 메시지 설정
+                    content.className = data[title] ? 'content-filled' : 'content-empty'; // 내용에 따라 클래스 설정
+                });
+            } else {
+                alert('해당 재고번호의 물질을 찾을 수 없습니다.');
+            }
+        }
+    </script>
+</body>
+</html> 
