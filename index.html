@@ -6,24 +6,28 @@
     <title>82창 특수제작공장 MSDS 정보 시스템</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
+        /* 기본 마진, 패딩 초기화 및 박스 사이징 설정 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        /* 기본 폰트 및 배경색 설정 */
         body {
             font-family: 'Noto Sans KR', sans-serif;
             line-height: 1.6;
             background: #f5f5f5;
         }
 
+        /* 컨테이너 최대 너비 및 여백 설정 */
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
 
+        /* 헤더 스타일링 */
         header {
             background: #2c3e50;
             color: white;
@@ -31,10 +35,12 @@
             margin-bottom: 30px;
         }
 
+        /* 헤더 제목 중앙 정렬 */
         header h1 {
             text-align: center;
         }
 
+        /* 검색 섹션 스타일링 - 상단 고정 */
         .search-section {
             position: sticky;
             top: 0;
@@ -46,12 +52,14 @@
             margin-bottom: 30px;
         }
 
+        /* 검색 박스 레이아웃 */
         .search-box {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
         }
 
+        /* 검색 입력창 스타일링 */
         input[type="text"] {
             padding: 10px;
             border: 1px solid #ddd;
@@ -59,6 +67,7 @@
             flex: 1;
         }
 
+        /* 버튼 스타일링 */
         button {
             padding: 10px 20px;
             background: #3498db;
@@ -66,13 +75,19 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            font-weight: normal;
         }
 
+        /* 버튼 호버 효과 */
         button:hover {
             background: #2980b9;
+            font-weight: bold;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
+        /* MSDS 컨텐츠 영역 스타일링 */
         .msds-content {
             background: white;
             padding: 20px;
@@ -80,6 +95,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
+        /* MSDS 그리드 레이아웃 */
         .msds-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
@@ -87,6 +103,7 @@
             margin-top: 20px;
         }
 
+        /* MSDS 아이템 스타일링 */
         .msds-item {
             border: 1px solid #ddd;
             padding: 15px;
@@ -98,11 +115,71 @@
             flex-direction: column;
         }
 
-        .msds-item:hover {
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
+        /* 유해성 이미지 컨테이너 스타일링 */
+        .hazard-image-container {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border: 1px dashed #dee2e6;
+            min-height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
+        .hazard-image {
+            max-width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .hazard-image:hover {
+            transform: scale(1.05);
+        }
+
+        .no-image-text {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        /* MSDS 아이템 호버 효과 */
+        .msds-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+            background-color: #f8f9fa;
+        }
+
+        .msds-item:hover h3 {
+            color: #1a252f;
+            font-size: 1.15em;
+        }
+
+        .msds-item:hover .content-filled {
+            color: #000;
+            font-size: 1.05em;
+            text-shadow: 0 0 0.1px rgba(0,0,0,0.3);
+        }
+
+        .content-filled {
+            color: #333;
+            white-space: pre-line;
+            transition: all 0.3s ease;
+        }
+
+        .content-empty {
+            color: #999;
+            font-style: italic;
+            transition: all 0.3s ease;
+        }
+
+        .msds-item:hover .content-empty {
+            color: #666;
+        }
+
+        /* MSDS 아이템 제목 스타일링 */
         .msds-item h3 {
             color: #2c3e50;
             margin-bottom: 10px;
@@ -117,16 +194,6 @@
         }
 
         .empty-content {
-            color: #999;
-            font-style: italic;
-        }
-
-        .content-filled {
-            color: #333;
-            white-space: pre-line;
-        }
-
-        .content-empty {
             color: #999;
             font-style: italic;
         }
@@ -148,14 +215,14 @@
 <body>
     <header>
         <div class="container">
-            <h1>82창 특수제작공장 MSDS 정보 시스템587검색</h1>
+            <h1>82창 특수제작공장 MSDS 정보 시스템</h1>
         </div>
     </header>
 
     <div class="container">
         <section class="search-section">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="재고번호 입력...">
+                <input type="text" id="searchInput" placeholder="CAS번호 입력...">
                 <button onclick="searchMSDS()">검색</button>
             </div>
         </section>
@@ -222,8 +289,7 @@
                 if (index === 1) {  // 두 번째 항목 (0부터 시작하므로 인덱스 1)
                     itemHTML += `
                         <div class="hazard-image-container">
-                            <img id="hazardImage" src="placeholder.jpg" alt="유해성 이미지" 
-                                 style="display: none; max-width: 100%; margin-top: 10px; border-radius: 4px;">
+                            <span class="no-image-text">데이터를 검색하세요</span>
                         </div>
                     `;
                 }
@@ -242,7 +308,13 @@
                 const workbook = XLSX.read(data, {type: 'array'});
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                 msdsData = XLSX.utils.sheet_to_json(firstSheet, {defval: ''});
+                
+                // Excel 데이터 구조 상세 로깅
                 console.log('MSDS Data:', msdsData);
+                if (msdsData.length > 0) {
+                    console.log('Excel 열 이름들:', Object.keys(msdsData[0]));
+                    console.log('첫 번째 데이터 샘플:', msdsData[0]);
+                }
             } catch (error) {
                 console.error('Excel 파일 로드 실패:', error);
                 alert('데이터 파일을 불러오는데 실패했습니다.');
@@ -257,36 +329,47 @@
             }
 
             const searchTerm = document.getElementById('searchInput').value.trim();
-            console.log('Searching for:', searchTerm);
+            console.log('검색어:', searchTerm);
             const filteredData = msdsData.filter(item => 
-                item.재고번호?.toString().trim() === searchTerm
+                item.CAS번호?.toString().trim() === searchTerm
             );
 
-            console.log('Filtered Data:', filteredData);
+            console.log('검색된 데이터:', filteredData);
 
             // 필터링된 데이터가 존재하는지 확인
             if (filteredData.length > 0) {
                 const data = filteredData[0]; // 첫 번째 필터링된 데이터 가져오기
+                console.log('Excel 파일의 모든 열:', Object.keys(data));
+                console.log('이미지 데이터:', data.images); // images 열의 데이터 확인
+
                 document.querySelectorAll('.msds-item').forEach((item, index) => {
-                    const title = msdsItems[index]; // 제목 가져오기
-                    const content = item.querySelector('p'); // 내용 요소 선택
-                    content.textContent = data[title] || '얼레리 꼴레리'; // 데이터가 없으면 기본 메시지 설정
-                    content.className = data[title] ? 'content-filled' : 'content-empty'; // 내용에 따라 클래스 설정
+                    const title = msdsItems[index];
+                    const content = item.querySelector('p');
+                    content.textContent = data[title] || '데이터 없음';
+                    content.className = data[title] ? 'content-filled' : 'content-empty';
                     
                     // 2번 항목(유해성·위험성)인 경우 이미지 처리
                     if (index === 1) {
-                        const hazardImage = document.getElementById('hazardImage');
-                        // 이미지 경로가 있으면 표시, 없으면 숨김
-                        if (data.이미지경로) {
-                            hazardImage.src = data.이미지경로;
-                            hazardImage.style.display = 'block';
+                        const hazardImageContainer = item.querySelector('.hazard-image-container');
+                        const imageName = data.images; // Excel의 'images' 열에서 이미지 파일명 가져오기
+                        console.log('이미지 파일명:', imageName);
+                        
+                        if (imageName) {
+                            const imagePath = `images/${imageName}`;
+                            console.log('최종 이미지 경로:', imagePath);
+                            hazardImageContainer.innerHTML = `
+                                <img class="hazard-image" 
+                                     src="${imagePath}" 
+                                     alt="유해성 이미지"
+                                     onerror="console.error('이미지 로드 실패:', this.src); this.onerror=null; this.parentElement.innerHTML='<span class=\'no-image-text\'>이미지를 찾을 수 없습니다</span>'">
+                            `;
                         } else {
-                            hazardImage.style.display = 'none';
+                            hazardImageContainer.innerHTML = '<span class="no-image-text">이미지 정보가 없습니다</span>';
                         }
                     }
                 });
             } else {
-                alert('해당 재고번호의 물질을 찾을 수 없습니다.');
+                alert('해당 CAS번호의 물질을 찾을 수 없습니다.');
             }
         }
     </script>
